@@ -14,6 +14,10 @@ import {
 } from './provider.js';
 import { ReflectTypeEnum } from './reflect-type.enum.js';
 
+/**
+ * @internal
+ * @param target
+ */
 function stringify_target(target: Provide): string {
   if (target instanceof InjectionToken) {
     return `InjectionToken(${target.description})`;
@@ -22,21 +26,50 @@ function stringify_target(target: Provide): string {
 }
 
 export class Injector {
-  protected constructor(
-    public readonly name: string,
-    private readonly parent: Injector | null
-  ) {
+  /**
+   * @internal
+   * @param name
+   * @param parent
+   * @protected
+   */
+  protected constructor(public readonly name: string, parent: Injector | null) {
+    this.parent = parent;
     this.instances.set(Injector, this);
   }
 
+  /**
+   * @internal
+   * @private
+   */
+  private readonly parent: Injector | null;
+
+  /**
+   * @internal
+   * @protected
+   */
   protected readonly providers = new Map<unknown, Provider>();
+
+  /**
+   * @internal
+   * @protected
+   */
   protected readonly instances = new Map<unknown, unknown>();
 
+  /**
+   * @internal
+   * @param provider
+   * @private
+   */
   private resolve_value_provider<T>(provider: ValueProvider<T>): T {
     this.instances.set(provider.provide, provider.useValue);
     return provider.useValue;
   }
 
+  /**
+   * @internal
+   * @param provider
+   * @private
+   */
   private async resolve_class_provider<T>(provider: ClassProvider<T>): Promise<T> {
     const inject_params = Inject.get_all_for_target(provider.useClass);
     const reflect_params: Class<unknown>[] =
@@ -67,6 +100,11 @@ export class Injector {
     return instance as T;
   }
 
+  /**
+   * @internal
+   * @param provider
+   * @private
+   */
   private async resolve_factory_provider<T>(provider: FactoryProvider<T>): Promise<T> {
     const deps: unknown[] = [];
     for (const dep of provider.deps ?? []) {
@@ -85,6 +123,11 @@ export class Injector {
     return instance;
   }
 
+  /**
+   * @internal
+   * @param provider
+   * @private
+   */
   private async resolve_provider<T>(provider: Provider<T>): Promise<T> {
     if (provider instanceof ValueProvider) {
       return this.resolve_value_provider(provider);
@@ -120,7 +163,7 @@ export class Injector {
   }
 
   register(
-    providerOrProviders: (Provider | Class<unknown>) | (Provider | Class<unknown>)[]
+    providerOrProviders: (Provider | Class<unknown>) | Array<Provider | Class<unknown>>
   ): this {
     const providers = coerce_array(providerOrProviders);
     for (let provider of providers) {
@@ -164,13 +207,24 @@ export class Injector {
 }
 
 export class RootInjector extends Injector {
+  /**
+   * @internal
+   */
   constructor() {
     super('Root', null);
     this.instances.set(RootInjector, this);
   }
 
+  /**
+   * @internal
+   * @private
+   */
   private has_loaded = false;
 
+  /**
+   * @internal
+   * @private
+   */
   private add_global_providers(): this {
     if (this.has_loaded) {
       return this;
