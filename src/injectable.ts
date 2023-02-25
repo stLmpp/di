@@ -3,7 +3,7 @@ import { type Class } from 'type-fest';
 import { type FactoryProvider } from './provider.js';
 import { type ClassDecorator } from './type.js';
 
-export type InjectableOptions = { global?: boolean } & Partial<
+export type InjectableOptions = { root?: boolean } & Partial<
   Omit<FactoryProvider, 'provide'>
 >;
 

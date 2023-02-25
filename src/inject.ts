@@ -1,6 +1,6 @@
 import { type Class } from 'type-fest';
 
-import { is_forward_ref } from './forward-ref.js';
+import { type ForwardRef, is_forward_ref } from './forward-ref.js';
 import { type Provide } from './provider.js';
 import { type ParameterDecorator } from './type.js';
 
@@ -9,7 +9,7 @@ export interface InjectMetadata {
 }
 
 interface Inject {
-  (value: Provide): ParameterDecorator;
+  (value: Provide | ForwardRef): ParameterDecorator;
 
   /**
    * @internal
@@ -46,7 +46,9 @@ const get_all_for_target: Inject['get_all_for_target'] = (target) => {
   return array;
 };
 
-function inject_internal(provider_or_forward_ref: Provide): ParameterDecorator {
+function inject_internal(
+  provider_or_forward_ref: Provide | ForwardRef
+): ParameterDecorator {
   return (target, property_key, parameter_index) => {
     set_metadata(target, parameter_index, {
       type_fn: is_forward_ref(provider_or_forward_ref)

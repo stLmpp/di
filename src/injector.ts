@@ -12,7 +12,7 @@ import {
   resolveProvider,
   ValueProvider,
 } from './provider.js';
-import { ReflectMetadataTypesEnum } from './reflect-metadata-types.enum.js';
+import { ReflectTypeEnum } from './reflect-type.enum.js';
 
 function stringify_target(target: Provide): string {
   if (target instanceof InjectionToken) {
@@ -40,9 +40,10 @@ export class Injector {
   private async resolve_class_provider<T>(provider: ClassProvider<T>): Promise<T> {
     const inject_params = Inject.get_all_for_target(provider.useClass);
     const reflect_params: Class<unknown>[] =
-      Reflect.getMetadata(ReflectMetadataTypesEnum.paramTypes, provider.useClass) ?? [];
-    const params = reflect_params.map(
-      (param, index) => inject_params[index]?.type_fn() ?? param
+      Reflect.getMetadata(ReflectTypeEnum.paramTypes, provider.useClass) ?? [];
+    const params = Array.from(
+      { length: Math.max(inject_params.length, reflect_params.length) },
+      (_, index) => inject_params[index]?.type_fn() ?? reflect_params[index]
     );
     if (!params.length) {
       const instance = new provider.useClass();
@@ -175,7 +176,7 @@ export class RootInjector extends Injector {
       return this;
     }
     const injectable_entries = Injectable.get_all().filter(
-      ([target, options]) => options.global && !this.providers.has(target)
+      ([target, options]) => options.root && !this.providers.has(target)
     );
     for (const [target, options] of injectable_entries) {
       const provider = options.useFactory

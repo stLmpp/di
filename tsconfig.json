@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "module": "NodeNext",
-    "lib": ["ESNext"],
-    "target": "ES2022",
+    "moduleResolution": "NodeNext",
+    "target": "ESNext",
     "importHelpers": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
@@ -13,6 +13,9 @@
     "useUnknownInCatchVariables": false,
     "baseUrl": ".",
     "resolveJsonModule": true,
-    "stripInternal": true
+    "stripInternal": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "types": ["@abraham/reflection", "jest"]
   }
 }
