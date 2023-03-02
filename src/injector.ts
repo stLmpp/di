@@ -193,12 +193,12 @@ export class Injector {
     return instance;
   }
 
-  async resolveAll(): Promise<this> {
-    const providers = [...this.providers.values()];
-    for (const provider of providers) {
-      await this.resolve(provider.provide);
+  async resolveMany(targets: Provide[]): Promise<unknown[]> {
+    const services: unknown[] = [];
+    for (const target of targets) {
+      services.push(await this.resolve(target));
     }
-    return this;
+    return services;
   }
 
   static create(name: string, parent?: Injector): Injector {
