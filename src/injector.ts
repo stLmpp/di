@@ -202,7 +202,7 @@ export class Injector {
   }
 
   static create(name: string, parent?: Injector): Injector {
-    return new Injector(name, parent ?? root_injector);
+    return new Injector(name, parent ?? ROOT_INJECTOR);
   }
 }
 
@@ -261,4 +261,4 @@ export class RootInjector extends Injector {
   }
 }
 
-const root_injector = new RootInjector();
+export const ROOT_INJECTOR = new RootInjector();

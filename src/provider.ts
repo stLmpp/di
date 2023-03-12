@@ -14,10 +14,95 @@ export class ClassProvider<T = unknown> extends ProviderBase<T> {
   }
 }
 
-export class FactoryProvider<T = unknown> extends ProviderBase<T> {
+export class FactoryProvider<
+  T = unknown,
+  P1 = unknown,
+  P2 = unknown,
+  P3 = unknown,
+  P4 = unknown,
+  P5 = unknown,
+  P6 = unknown,
+  P7 = unknown,
+  P8 = unknown
+> extends ProviderBase<T> {
+  constructor(provide: Provide<T>, useFactory: () => T | Promise<T>, deps?: Provide[]);
   constructor(
     provide: Provide<T>,
-    public readonly useFactory: (...args: unknown[]) => T | Promise<T>,
+    useFactory: (p1: P1) => T | Promise<T>,
+    deps: [Provide<P1>]
+  );
+  constructor(
+    provide: Provide<T>,
+    useFactory: (p1: P1, p2: P2) => T | Promise<T>,
+    deps: [Provide<P1>, Provide<P2>]
+  );
+  constructor(
+    provide: Provide<T>,
+    useFactory: (p1: P1, p2: P2, p3: P3) => T | Promise<T>,
+    deps: [Provide<P1>, Provide<P2>, Provide<P3>]
+  );
+  constructor(
+    provide: Provide<T>,
+    useFactory: (p1: P1, p2: P2, p3: P3, p4: P4) => T | Promise<T>,
+    deps: [Provide<P1>, Provide<P2>, Provide<P3>, Provide<P4>]
+  );
+  constructor(
+    provide: Provide<T>,
+    useFactory: (p1: P1, p2: P2, p3: P3, p4: P4, p5: P5) => T | Promise<T>,
+    deps: [Provide<P1>, Provide<P2>, Provide<P3>, Provide<P4>, Provide<P5>]
+  );
+  constructor(
+    provide: Provide<T>,
+    useFactory: (p1: P1, p2: P2, p3: P3, p4: P4, p5: P5, p6: P6) => T | Promise<T>,
+    deps: [Provide<P1>, Provide<P2>, Provide<P3>, Provide<P4>, Provide<P5>, Provide<P6>]
+  );
+  constructor(
+    provide: Provide<T>,
+    useFactory: (
+      p1: P1,
+      p2: P2,
+      p3: P3,
+      p4: P4,
+      p5: P5,
+      p6: P6,
+      p7: P7
+    ) => T | Promise<T>,
+    deps: [
+      Provide<P1>,
+      Provide<P2>,
+      Provide<P3>,
+      Provide<P4>,
+      Provide<P5>,
+      Provide<P6>,
+      Provide<P7>
+    ]
+  );
+  constructor(
+    provide: Provide<T>,
+    useFactory: (
+      p1: P1,
+      p2: P2,
+      p3: P3,
+      p4: P4,
+      p5: P5,
+      p6: P6,
+      p7: P7,
+      p8: P8
+    ) => T | Promise<T>,
+    deps: [
+      Provide<P1>,
+      Provide<P2>,
+      Provide<P3>,
+      Provide<P4>,
+      Provide<P5>,
+      Provide<P6>,
+      Provide<P7>,
+      Provide<P8>
+    ]
+  );
+  constructor(
+    provide: Provide<T>,
+    public readonly useFactory: (...args: any[]) => T | Promise<T>,
     public readonly deps?: Provide[]
   ) {
     super(provide);

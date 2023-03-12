@@ -4,7 +4,7 @@ export { forwardRef } from './forward-ref.js';
 export { Inject } from './inject.js';
 export { Injectable, type InjectableOptions } from './injectable.js';
 export { InjectionToken } from './injection-token.js';
-export { Injector, RootInjector } from './injector.js';
+export { Injector, RootInjector, ROOT_INJECTOR } from './injector.js';
 export {
   ClassProvider,
   isProvider,
