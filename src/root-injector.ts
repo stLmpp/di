@@ -1,33 +1,62 @@
 import { type Class } from 'type-fest';
 
 import { BaseInjector, stringify_target } from './base-injector.js';
-import { type InjectionToken } from './injection-token.js';
-import { type Provide, type Provider } from './provider.js';
-import { ROOT_INJECTOR } from './root-injector.js';
+import { Injectable } from './injectable.js';
+import { InjectionToken } from './injection-token.js';
+import {
+  ClassProvider,
+  FactoryProvider,
+  type Provide,
+  type Provider,
+} from './provider.js';
 
-export class Injector extends BaseInjector {
+export class RootInjector extends BaseInjector {
   /**
    * @internal
-   * @param name
-   * @param parent
-   * @protected
    */
-  protected constructor(name: string, parent: BaseInjector | null) {
-    super(name);
-    this.parent = parent;
-    this.instances.set(Injector, this);
+  constructor() {
+    super('Root');
+    this.instances.set(RootInjector, this);
   }
 
   /**
    * @internal
    * @private
    */
-  public readonly parent: BaseInjector | null;
+  private has_loaded = false;
+
+  /**
+   * @internal
+   * @private
+   */
+  private add_global_providers(): this {
+    if (this.has_loaded) {
+      return this;
+    }
+    const injectable_entries = Injectable.get_all().filter(
+      ([target, options]) => options.root && !this.providers.has(target)
+    );
+    for (const [target, options] of injectable_entries) {
+      const provider = options.useFactory
+        ? new FactoryProvider(target, options.useFactory, options.deps)
+        : new ClassProvider(target, target);
+      this.providers.set(target, provider);
+    }
+    const injection_token_entries = InjectionToken.get_all().filter(
+      ([target]) => !this.providers.has(target)
+    );
+    for (const [target, factory] of injection_token_entries) {
+      this.providers.set(target, factory);
+    }
+    this.has_loaded = true;
+    return this;
+  }
 
   async resolve<T>(target: InjectionToken<T>, path?: string[]): Promise<T>;
   async resolve<T>(target: Class<T>, path?: string[]): Promise<T>;
   async resolve<T>(target: Provide<T>, path?: string[]): Promise<T>;
   async resolve<T>(target: Provide<T>, path?: string[]): Promise<T> {
+    this.add_global_providers();
     if (this.instances.has(target)) {
       return this.instances.get(target) as T;
     }
@@ -35,9 +64,6 @@ export class Injector extends BaseInjector {
     path.push(this.name);
     const provider = this.providers.get(target) as Provider<T> | undefined;
     if (!provider) {
-      if (this.parent) {
-        return this.parent.resolve(target, path);
-      }
       throw new Error(
         `"${stringify_target(
           target
@@ -55,9 +81,6 @@ export class Injector extends BaseInjector {
   get<T>(target: Provide<T>): T {
     const instance = this.instances.get(target) as T | undefined;
     if (!instance) {
-      if (this.parent) {
-        return this.parent.get(target);
-      }
       throw new Error(
         `Instance "${stringify_target(
           target
@@ -68,8 +91,6 @@ export class Injector extends BaseInjector {
     }
     return instance;
   }
-
-  static create(name: string, parent?: BaseInjector): Injector {
-    return new Injector(name, parent ?? ROOT_INJECTOR);
-  }
 }
+
+export const ROOT_INJECTOR = new RootInjector();

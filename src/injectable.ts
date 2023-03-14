@@ -48,3 +48,7 @@ export const Injectable: Injectable = Object.assign(injectable_internal, {
   set_metadata,
   get_all,
 });
+
+export function hasInjectableMetadata(target: Class<unknown>): boolean {
+  return !!get_metadata(target);
+}
