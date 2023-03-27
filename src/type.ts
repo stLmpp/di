@@ -12,6 +12,6 @@ export type MethodDecorator = <T>(
 ) => TypedPropertyDescriptor<T> | void;
 export type ParameterDecorator = (
   target: Class<unknown>,
-  propertyKey: string | symbol,
+  propertyKey: string | symbol | undefined,
   parameterIndex: number
 ) => void;
