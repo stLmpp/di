@@ -19,4 +19,4 @@ export {
   type Provide,
 } from './provider.js';
 export { ROOT_INJECTOR, RootInjector } from './root-injector.js';
-export { UnwrapProviders } from './unwrap-providers.type.js';
+export { type UnwrapProviders } from './unwrap-providers.type.js';
