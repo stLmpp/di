@@ -16,21 +16,21 @@ export class InjectionToken<T> {
   /**
    * @internal
    */
-  static readonly store = new Map<InjectionToken<unknown>, FactoryProvider>();
+  static readonly store = new Map<InjectionToken<any>, FactoryProvider>();
 
   /**
    * @internal
    * @param token
    * @param factory
    */
-  static add(token: InjectionToken<unknown>, factory: FactoryProvider) {
+  static add(token: InjectionToken<any>, factory: FactoryProvider) {
     this.store.set(token, factory);
   }
 
   /**
    * @internal
    */
-  static get_all(): [InjectionToken<unknown>, FactoryProvider][] {
+  static get_all(): [InjectionToken<any>, FactoryProvider][] {
     return [...this.store];
   }
 }

@@ -17,17 +17,17 @@ interface Inject {
    * @param index
    * @param metadata
    */
-  set_metadata(target: Class<unknown>, index: number, metadata: InjectMetadata): void;
+  set_metadata(target: Class<any>, index: number, metadata: InjectMetadata): void;
 
   /**
    * @internal
    * @param target
    */
-  get_all_for_target(target: Class<unknown>): (InjectMetadata | undefined)[];
+  get_all_for_target(target: Class<any>): (InjectMetadata | undefined)[];
 }
 
 const MapParameter = Map<number, InjectMetadata>;
-const metadata_store = new Map<Class<unknown>, Map<number, InjectMetadata>>();
+const metadata_store = new Map<Class<any>, Map<number, InjectMetadata>>();
 
 const set_metadata: Inject['set_metadata'] = (target, index, metadata) => {
   let class_stored = metadata_store.get(target);

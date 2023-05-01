@@ -14,22 +14,22 @@ interface Injectable {
    * @internal
    * @param target
    */
-  get_metadata(target: Class<unknown>): InjectableOptions | null;
+  get_metadata(target: Class<any>): InjectableOptions | null;
 
   /**
    * @internal
    * @param target
    * @param metadata
    */
-  set_metadata(target: Class<unknown>, metadata: InjectableOptions): void;
+  set_metadata(target: Class<any>, metadata: InjectableOptions): void;
 
   /**
    * @internal
    */
-  get_all(): [Class<unknown>, InjectableOptions][];
+  get_all(): [Class<any>, InjectableOptions][];
 }
 
-const metadata_store = new Map<Class<unknown>, InjectableOptions>();
+const metadata_store = new Map<Class<any>, InjectableOptions>();
 
 const get_metadata: Injectable['get_metadata'] = (target) =>
   metadata_store.get(target) ?? null;
@@ -49,6 +49,6 @@ export const Injectable: Injectable = Object.assign(injectable_internal, {
   get_all,
 });
 
-export function hasInjectableMetadata(target: Class<unknown>): boolean {
+export function hasInjectableMetadata(target: Class<any>): boolean {
   return !!get_metadata(target);
 }

@@ -3,21 +3,21 @@ import { type Class } from 'type-fest';
 import { type InjectionToken } from './injection-token.js';
 import { type UnwrapProviders } from './unwrap-providers.type.js';
 
-export type Provide<T = unknown> = Class<T> | InjectionToken<T>;
+export type Provide<T = any> = Class<T> | InjectionToken<T>;
 
-class ProviderBase<T = unknown> {
+class ProviderBase<T = any> {
   constructor(public readonly provide: Provide<T>) {}
 }
 
-export class ClassProvider<T = unknown> extends ProviderBase<T> {
+export class ClassProvider<T = any> extends ProviderBase<T> {
   constructor(provide: Provide<T>, public readonly useClass: Class<T>) {
     super(provide);
   }
 }
 
 export class FactoryProvider<
-  T = unknown,
-  Providers extends Provide<any>[] = any[]
+  T = any,
+  Providers extends Provide[] = any
 > extends ProviderBase<T> {
   constructor(
     provide: Provide<T>,
@@ -30,16 +30,13 @@ export class FactoryProvider<
   }
 }
 
-export class ValueProvider<T = unknown> extends ProviderBase<T> {
+export class ValueProvider<T = any> extends ProviderBase<T> {
   constructor(provide: Provide<T>, public readonly useValue: T) {
     super(provide);
   }
 }
 
-export type Provider<T = unknown> =
-  | ClassProvider<T>
-  | FactoryProvider<T>
-  | ValueProvider<T>;
+export type Provider<T = any> = ClassProvider<T> | FactoryProvider<T> | ValueProvider<T>;
 
 export function isProvider(value: unknown): value is Provider {
   return (
@@ -49,7 +46,7 @@ export function isProvider(value: unknown): value is Provider {
   );
 }
 
-export function resolveProvider(possibleProvider: Provider | Class<unknown>): Provider {
+export function resolveProvider(possibleProvider: Provider | Class<any>): Provider {
   if (isProvider(possibleProvider)) {
     return possibleProvider;
   }
