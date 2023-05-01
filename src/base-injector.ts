@@ -12,6 +12,7 @@ import {
   ValueProvider,
 } from './provider.js';
 import { ReflectTypeEnum } from './reflect-type.enum.js';
+import { type UnwrapProviders } from './unwrap-providers.type.js';
 
 /**
  * @internal
@@ -133,52 +134,10 @@ export abstract class BaseInjector {
     return this;
   }
 
-  async resolveMany<T>(targets: [Provide<T>]): Promise<[T]>;
-  async resolveMany<T1, T2>(targets: [Provide<T1>, Provide<T2>]): Promise<[T1, T2]>;
-  async resolveMany<T1, T2, T3>(
-    targets: [Provide<T1>, Provide<T2>, Provide<T3>]
-  ): Promise<[T1, T2, T3]>;
-  async resolveMany<T1, T2, T3, T4>(
-    targets: [Provide<T1>, Provide<T2>, Provide<T3>, Provide<T4>]
-  ): Promise<[T1, T2, T3, T4]>;
-  async resolveMany<T1, T2, T3, T4, T5>(
-    targets: [Provide<T1>, Provide<T2>, Provide<T3>, Provide<T4>, Provide<T5>]
-  ): Promise<[T1, T2, T3, T4, T5]>;
-  async resolveMany<T1, T2, T3, T4, T5, T6>(
-    targets: [
-      Provide<T1>,
-      Provide<T2>,
-      Provide<T3>,
-      Provide<T4>,
-      Provide<T5>,
-      Provide<T6>
-    ]
-  ): Promise<[T1, T2, T3, T4, T5, T6]>;
-  async resolveMany<T1, T2, T3, T4, T5, T6, T7>(
-    targets: [
-      Provide<T1>,
-      Provide<T2>,
-      Provide<T3>,
-      Provide<T4>,
-      Provide<T5>,
-      Provide<T6>,
-      Provide<T7>
-    ]
-  ): Promise<[T1, T2, T3, T4, T5, T6, T7]>;
-  async resolveMany<T1, T2, T3, T4, T5, T6, T7, T8>(
-    targets: [
-      Provide<T1>,
-      Provide<T2>,
-      Provide<T3>,
-      Provide<T4>,
-      Provide<T5>,
-      Provide<T6>,
-      Provide<T7>,
-      Provide<T8>
-    ]
-  ): Promise<[T1, T2, T3, T4, T5, T6, T7, T8]>;
-  async resolveMany(targets: Provide[]): Promise<unknown[]> {
-    const services: unknown[] = [];
+  async resolveMany<Providers extends Provide<any>[]>(
+    targets: [...Providers]
+  ): Promise<UnwrapProviders<Providers>> {
+    const services = [] as UnwrapProviders<Providers>;
     for (const target of targets) {
       services.push(await this.resolve(target));
     }
