@@ -5,7 +5,7 @@ import { Inject } from './inject.js';
 import { InjectionToken } from './injection-token.js';
 import {
   ClassProvider,
-  type FactoryProvider,
+  FactoryProvider,
   type Provide,
   type Provider,
   resolveProvider,
@@ -32,13 +32,24 @@ export abstract class BaseInjector {
    * @internal
    * @protected
    */
-  protected readonly providers = new Map<any, Provider>();
+  protected readonly providers = new Map<any, Provider[]>();
 
   /**
    * @internal
    * @protected
    */
-  protected readonly instances = new Map<any, any>();
+  protected readonly instances = new Map<any, any[]>();
+
+  protected add_provider_value<T>(provider: Provider<T>, value: T): T {
+    let instances = (this.instances.get(provider.provide) as T[] | undefined) ?? [];
+    if (provider.multi) {
+      instances.push(value);
+    } else {
+      instances = [value];
+    }
+    this.instances.set(provider.provide, instances);
+    return value;
+  }
 
   /**
    * @internal
@@ -46,8 +57,7 @@ export abstract class BaseInjector {
    * @private
    */
   protected resolve_value_provider<T>(provider: ValueProvider<T>): T {
-    this.instances.set(provider.provide, provider.useValue);
-    return provider.useValue;
+    return this.add_provider_value(provider, provider.useValue);
   }
 
   /**
@@ -61,11 +71,11 @@ export abstract class BaseInjector {
       Reflect.getMetadata(ReflectTypeEnum.paramTypes, provider.useClass) ?? [];
     const params = Array.from(
       { length: Math.max(inject_params.length, reflect_params.length) },
-      (_, index) => inject_params[index]?.type_fn() ?? reflect_params[index]
+      (_, index) => inject_params[index]?.type_fn() ?? reflect_params[index],
     );
     if (!params.length) {
       const instance = new provider.useClass();
-      this.instances.set(provider.provide, instance);
+      this.add_provider_value(provider, instance);
       return instance;
     }
     const injections: any[] = [];
@@ -74,15 +84,14 @@ export abstract class BaseInjector {
       if (typeof injection_instance === 'undefined') {
         throw new Error(
           `Error trying to resolve ${stringify_target(
-            provider.useClass
-          )}. Param ${stringify_target(param)} undefined`
+            provider.useClass,
+          )}. Param ${stringify_target(param)} undefined`,
         );
       }
       injections.push(injection_instance);
     }
     const instance = new provider.useClass(...injections);
-    this.instances.set(provider.provide, instance);
-    return instance as T;
+    return this.add_provider_value(provider, instance);
   }
 
   /**
@@ -97,45 +106,50 @@ export abstract class BaseInjector {
       if (typeof dep_instance === 'undefined') {
         throw new Error(
           `Error trying to resolve ${stringify_target(
-            provider.provide
-          )}. Dep ${stringify_target(dep)} undefined`
+            provider.provide,
+          )}. Dep ${stringify_target(dep)} undefined`,
         );
       }
       deps.push(dep_instance);
     }
     const instance = await provider.useFactory(...deps);
-    this.instances.set(provider.provide, instance);
-    return instance;
+    return this.add_provider_value(provider, instance);
   }
 
   /**
    * @internal
-   * @param provider
+   * @param providers
    * @private
    */
-  protected async resolve_provider<T>(provider: Provider<T>): Promise<T> {
-    if (provider instanceof ValueProvider) {
-      return this.resolve_value_provider(provider);
+  protected async resolve_providers<T>(providers: Provider<T>[]): Promise<void> {
+    for (const provider of providers) {
+      if (provider instanceof ValueProvider) {
+        await this.resolve_value_provider(provider);
+      }
+      if (provider instanceof ClassProvider) {
+        await this.resolve_class_provider(provider);
+      }
+      if (provider instanceof FactoryProvider) {
+        await this.resolve_factory_provider(provider);
+      }
     }
-    if (provider instanceof ClassProvider) {
-      return this.resolve_class_provider(provider);
-    }
-    return this.resolve_factory_provider(provider);
   }
 
   register(
-    providerOrProviders: (Provider | Class<any>) | Array<Provider | Class<any>>
+    providerOrProviders: (Provider | Class<any>) | Array<Provider | Class<any>>,
   ): this {
     const providers = coerce_array(providerOrProviders);
     for (let provider of providers) {
       provider = resolveProvider(provider);
-      this.providers.set(provider.provide, provider);
+      const providers2 = this.providers.get(provider.provide) ?? [];
+      providers2.push(provider);
+      this.providers.set(provider.provide, providers2);
     }
     return this;
   }
 
-  async resolveMany<Providers extends Provide<any>[]>(
-    targets: [...Providers]
+  async resolveMany<Providers extends Provide[]>(
+    targets: [...Providers],
   ): Promise<UnwrapProviders<Providers>> {
     const services = [] as UnwrapProviders<Providers>;
     for (const target of targets) {
@@ -146,4 +160,5 @@ export abstract class BaseInjector {
 
   abstract resolve<T>(target: Provide<T>, path?: string[]): Promise<T>;
   abstract get<T>(target: Provide<T>): T;
+  abstract getAll<T>(target: Provide<T>): T[];
 }

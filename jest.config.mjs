@@ -25,4 +25,5 @@ export default {
       statements: 80,
     },
   },
+  coverageReporters: ['lcov', 'lcovonly', 'html'],
 };

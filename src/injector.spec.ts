@@ -1,6 +1,8 @@
 import { Inject } from './inject.js';
 import { Injectable } from './injectable.js';
 import { Injector } from './injector.js';
+import { InjectionToken } from './injection-token.js';
+import { ValueProvider } from './provider.js';
 
 @Injectable()
 class Service1 {}
@@ -29,6 +31,13 @@ class Service7 {
   constructor(public readonly service6: Service6) {}
 }
 
+const rootToken = new InjectionToken('this is multi - root', {
+  multi: true,
+  useFactory: () => 'value1',
+});
+
+const token = new InjectionToken('this is multi - local');
+
 describe('Injector', () => {
   let injector: Injector;
 
@@ -48,7 +57,7 @@ describe('Injector', () => {
     expect(service1).toBe(service);
   });
 
-  it('should resolve dependecies with @Inject() decorator', async () => {
+  it('should resolve dependencies with @Inject() decorator', async () => {
     injector.register([Service2, Service3]);
     const service3 = await injector.resolve(Service3);
     expect(service3).toBeInstanceOf(Service3);
@@ -74,5 +83,31 @@ describe('Injector', () => {
     const service7 = await injector.resolve(Service7);
     expect(service7).toBeInstanceOf(Service7);
     expect(service7.service6).toBe(service6);
+  });
+
+  it('should resolve dependency with multi', async () => {
+    injector.register(new ValueProvider(token, 'value1', true));
+    injector.register(new ValueProvider(token, 'value2', true));
+    injector.register(new ValueProvider(token, 'value3', true));
+    const values = await injector.resolveAll(token);
+    expect(values).toEqual(['value1', 'value2', 'value3']);
+  });
+
+  it('should resolve dependency with multi (multiple times)', async () => {
+    const value1 = { value1: true };
+    const value2 = { value2: true };
+    const value3 = { value3: true };
+    injector.register(new ValueProvider(token, value1, true));
+    injector.register(new ValueProvider(token, value2, true));
+    injector.register(new ValueProvider(token, value3, true));
+    expect(await injector.resolveAll(token)).toEqual([value1, value2, value3]);
+    expect(await injector.resolveAll(token)).toEqual([value1, value2, value3]);
+  });
+
+  it('should resolve dependency with multi from global', async () => {
+    injector.register(new ValueProvider(rootToken, 'value2', true));
+    injector.register(new ValueProvider(rootToken, 'value3', true));
+    const values = await injector.resolveAll(rootToken);
+    expect(values).toEqual(['value2', 'value3', 'value1']);
   });
 });

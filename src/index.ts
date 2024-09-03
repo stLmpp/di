@@ -1,4 +1,4 @@
-import '@abraham/reflection';
+import 'reflect-metadata';
 
 export { BaseInjector } from './base-injector.js';
 export { forwardRef } from './forward-ref.js';

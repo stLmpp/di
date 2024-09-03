@@ -6,33 +6,45 @@ import { type UnwrapProviders } from './unwrap-providers.type.js';
 export type Provide<T = any> = Class<T> | InjectionToken<T>;
 
 class ProviderBase<T = any> {
-  constructor(public readonly provide: Provide<T>) {}
+  constructor(
+    public readonly provide: Provide<T>,
+    public readonly multi: boolean = false,
+  ) {}
 }
 
 export class ClassProvider<T = any> extends ProviderBase<T> {
-  constructor(provide: Provide<T>, public readonly useClass: Class<T>) {
-    super(provide);
+  constructor(
+    provide: Provide<T>,
+    public readonly useClass: Class<T>,
+    multi: boolean = false,
+  ) {
+    super(provide, multi);
   }
 }
 
 export class FactoryProvider<
   T = any,
-  Providers extends Provide[] = any
+  Providers extends Provide[] = any,
 > extends ProviderBase<T> {
   constructor(
     provide: Provide<T>,
     public readonly useFactory: (
       ...args: [...UnwrapProviders<Providers>]
     ) => T | Promise<T>,
-    public readonly deps?: [...Providers]
+    public readonly deps?: [...Providers],
+    multi: boolean = false,
   ) {
-    super(provide);
+    super(provide, multi);
   }
 }
 
 export class ValueProvider<T = any> extends ProviderBase<T> {
-  constructor(provide: Provide<T>, public readonly useValue: T) {
-    super(provide);
+  constructor(
+    provide: Provide<T>,
+    public readonly useValue: T,
+    multi: boolean = false,
+  ) {
+    super(provide, multi);
   }
 }
 
@@ -66,7 +78,7 @@ export function resolveProvider(possibleProvider: Provider | Class<any>): Provid
     return new FactoryProvider(
       providerObject.provide,
       providerObject.useFactory,
-      providerObject.deps
+      providerObject.deps,
     );
   }
   throw new Error(`Provider ${JSON.stringify(providerObject)} is not correct`);
