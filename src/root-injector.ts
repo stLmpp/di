@@ -9,6 +9,7 @@ import {
   type Provide,
   ValueProvider,
 } from './provider.js';
+import { DependencyInjectionError } from './dependency-injection-error.js';
 
 export class RootInjector extends BaseInjector {
   /**
@@ -57,7 +58,7 @@ export class RootInjector extends BaseInjector {
     path.push(this.name);
     const providers = this.providers.get(target);
     if (!providers?.length) {
-      throw new Error(
+      throw new DependencyInjectionError(
         `"${stringify_target(
           target,
         )}" is not provided globally nor is registered in any of the following injectors: ${path.join(
@@ -98,7 +99,7 @@ export class RootInjector extends BaseInjector {
   get<T>(target: Provide<T>): T {
     const instance = (this.instances.get(target) as T[] | undefined)?.at(0);
     if (!instance) {
-      throw new Error(
+      throw new DependencyInjectionError(
         `Instance "${stringify_target(
           target,
         )}" not found. Ensure it's a global Injectable or it's registered in the Injector you're using (${

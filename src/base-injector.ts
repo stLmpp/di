@@ -13,6 +13,7 @@ import {
 } from './provider.js';
 import { ReflectTypeEnum } from './reflect-type.enum.js';
 import { type UnwrapProviders } from './unwrap-providers.type.js';
+import { DependencyInjectionError } from './dependency-injection-error.js';
 
 /**
  * @internal
@@ -82,7 +83,7 @@ export abstract class BaseInjector {
     for (const param of params) {
       const injection_instance = await this.resolve(param);
       if (typeof injection_instance === 'undefined') {
-        throw new Error(
+        throw new DependencyInjectionError(
           `Error trying to resolve ${stringify_target(
             provider.useClass,
           )}. Param ${stringify_target(param)} undefined`,
@@ -104,7 +105,7 @@ export abstract class BaseInjector {
     for (const dep of provider.deps ?? []) {
       const dep_instance = await this.resolve(dep);
       if (typeof dep_instance === 'undefined') {
-        throw new Error(
+        throw new DependencyInjectionError(
           `Error trying to resolve ${stringify_target(
             provider.provide,
           )}. Dep ${stringify_target(dep)} undefined`,

@@ -3,6 +3,7 @@ import { Injectable } from './injectable.js';
 import { Injector } from './injector.js';
 import { InjectionToken } from './injection-token.js';
 import { ValueProvider } from './provider.js';
+import { DependencyInjectionError } from './dependency-injection-error.js';
 
 @Injectable()
 class Service1 {}
@@ -109,5 +110,18 @@ describe('Injector', () => {
     injector.register(new ValueProvider(rootToken, 'value3', true));
     const values = await injector.resolveAll(rootToken);
     expect(values).toEqual(['value2', 'value3', 'value1']);
+  });
+
+  it('should throw error if provider is not found (resolve)', async () => {
+    await expect(() => injector.resolve(token)).rejects.toThrow(DependencyInjectionError);
+  });
+
+  it('should throw error if provider is not found (get)', async () => {
+    expect(() => injector.get(token)).toThrow(DependencyInjectionError);
+  });
+
+  it('should not throw when using getAll', () => {
+    const result = injector.getAll(token);
+    expect(result).toEqual([]);
   });
 });

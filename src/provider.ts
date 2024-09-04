@@ -1,9 +1,10 @@
-import { type Class } from 'type-fest';
+import { type AbstractClass, type Class } from 'type-fest';
 
 import { type InjectionToken } from './injection-token.js';
 import { type UnwrapProviders } from './unwrap-providers.type.js';
+import { DependencyInjectionError } from './dependency-injection-error.js';
 
-export type Provide<T = any> = Class<T> | InjectionToken<T>;
+export type Provide<T = any> = AbstractClass<T> | Class<T> | InjectionToken<T>;
 
 class ProviderBase<T = any> {
   constructor(
@@ -81,5 +82,7 @@ export function resolveProvider(possibleProvider: Provider | Class<any>): Provid
       providerObject.deps,
     );
   }
-  throw new Error(`Provider ${JSON.stringify(providerObject)} is not correct`);
+  throw new DependencyInjectionError(
+    `Provider ${JSON.stringify(providerObject)} is not correct`,
+  );
 }
