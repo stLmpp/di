@@ -82,13 +82,6 @@ export abstract class BaseInjector {
     const injections: any[] = [];
     for (const param of params) {
       const injection_instance = await this.resolve(param);
-      if (typeof injection_instance === 'undefined') {
-        throw new DependencyInjectionError(
-          `Error trying to resolve ${stringify_target(
-            provider.useClass,
-          )}. Param ${stringify_target(param)} undefined`,
-        );
-      }
       injections.push(injection_instance);
     }
     const instance = new provider.useClass(...injections);
@@ -104,13 +97,6 @@ export abstract class BaseInjector {
     const deps: any[] = [];
     for (const dep of provider.deps ?? []) {
       const dep_instance = await this.resolve(dep);
-      if (typeof dep_instance === 'undefined') {
-        throw new DependencyInjectionError(
-          `Error trying to resolve ${stringify_target(
-            provider.provide,
-          )}. Dep ${stringify_target(dep)} undefined`,
-        );
-      }
       deps.push(dep_instance);
     }
     const instance = await provider.useFactory(...deps);
@@ -142,9 +128,9 @@ export abstract class BaseInjector {
     const providers = coerce_array(providerOrProviders);
     for (let provider of providers) {
       provider = resolveProvider(provider);
-      const providers2 = this.providers.get(provider.provide) ?? [];
-      providers2.push(provider);
-      this.providers.set(provider.provide, providers2);
+      const storedProviders = this.providers.get(provider.provide) ?? [];
+      storedProviders.push(provider);
+      this.providers.set(provider.provide, storedProviders);
     }
     return this;
   }

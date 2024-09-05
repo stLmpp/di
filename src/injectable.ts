@@ -5,7 +5,7 @@ import { type ClassDecorator } from './type.js';
 
 export type InjectableOptions = {
   root?: boolean;
-} & Partial<Omit<FactoryProvider<any>, 'provide'>>;
+} & Partial<Omit<FactoryProvider, 'provide'>>;
 
 interface Injectable {
   (options?: InjectableOptions): ClassDecorator;

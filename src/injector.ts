@@ -35,7 +35,7 @@ export class Injector extends BaseInjector {
     }
     const instances = this.instances.get(target);
     if (providers.at(0)?.multi) {
-      await safeAsync(async () => this.parent.resolve(target, path));
+      await safeAsync(() => this.parent.resolve(target, path));
       if (providers.length === instances?.length) {
         return;
       }

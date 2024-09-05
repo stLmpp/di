@@ -9,8 +9,12 @@ export type Provide<T = any> = AbstractClass<T> | Class<T> | InjectionToken<T>;
 class ProviderBase<T = any> {
   constructor(
     public readonly provide: Provide<T>,
-    public readonly multi: boolean = false,
-  ) {}
+    multi: boolean = false,
+  ) {
+    this.multi = multi;
+  }
+
+  public readonly multi?: boolean;
 }
 
 export class ClassProvider<T = any> extends ProviderBase<T> {
@@ -70,16 +74,25 @@ export function resolveProvider(possibleProvider: Provider | Class<any>): Provid
     provide: Provide;
   } = possibleProvider;
   if (providerObject.useValue) {
-    return new ValueProvider(providerObject.provide, providerObject.useValue);
+    return new ValueProvider(
+      providerObject.provide,
+      providerObject.useValue,
+      providerObject.multi,
+    );
   }
   if (providerObject.useClass) {
-    return new ClassProvider(providerObject.provide, providerObject.useClass);
+    return new ClassProvider(
+      providerObject.provide,
+      providerObject.useClass,
+      providerObject.multi,
+    );
   }
   if (providerObject.useFactory) {
     return new FactoryProvider(
       providerObject.provide,
       providerObject.useFactory,
       providerObject.deps,
+      providerObject.multi,
     );
   }
   throw new DependencyInjectionError(

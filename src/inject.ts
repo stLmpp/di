@@ -47,7 +47,7 @@ const get_all_for_target: Inject['get_all_for_target'] = (target) => {
 };
 
 function inject_internal(
-  provider_or_forward_ref: Provide | ForwardRef
+  provider_or_forward_ref: Provide | ForwardRef,
 ): ParameterDecorator {
   return (target, property_key, parameter_index) => {
     set_metadata(target, parameter_index, {
