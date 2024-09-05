@@ -1,11 +1,12 @@
-import { type AbstractClass, type Class } from 'type-fest';
+import type { AbstractClass, Class } from 'type-fest';
 
 import { BaseInjector, stringify_target } from './base-injector.js';
-import { type InjectionToken } from './injection-token.js';
-import { type Provide, ValueProvider } from './provider.js';
+import type { InjectionToken } from '../injection-token.js';
+import type { Provide } from '../provider/provider.js';
 import { ROOT_INJECTOR } from './root-injector.js';
-import { safe, safeAsync } from './safe.js';
-import { DependencyInjectionError } from './dependency-injection-error.js';
+import { safe, safeAsync } from '../common/safe.js';
+import { DependencyInjectionError } from '../dependency-injection-error.js';
+import { ValueProvider } from '../provider/value-provider.js';
 
 export class Injector extends BaseInjector {
   /**

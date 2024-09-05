@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 
-export { BaseInjector } from './base-injector.js';
+export { BaseInjector } from './injector/base-injector.js';
 export { forwardRef } from './forward-ref.js';
 export { Inject } from './inject.js';
 export {
@@ -9,14 +9,10 @@ export {
   hasInjectableMetadata,
 } from './injectable.js';
 export { InjectionToken } from './injection-token.js';
-export { Injector } from './injector.js';
-export {
-  ClassProvider,
-  isProvider,
-  FactoryProvider,
-  type Provider,
-  ValueProvider,
-  type Provide,
-} from './provider.js';
-export { ROOT_INJECTOR, RootInjector } from './root-injector.js';
-export { type UnwrapProviders } from './unwrap-providers.type.js';
+export { Injector } from './injector/injector.js';
+export { isProvider, type Provider, type Provide } from './provider/provider.js';
+export { ROOT_INJECTOR, RootInjector } from './injector/root-injector.js';
+export { UnwrapProviders } from './type.js';
+export { ClassProvider } from './provider/class-provider.js';
+export { FactoryProvider } from './provider/factory-provider.js';
+export { ValueProvider } from './provider/value-provider.js';

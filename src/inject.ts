@@ -1,8 +1,8 @@
-import { type Class } from 'type-fest';
+import type { Class } from 'type-fest';
 
 import { type ForwardRef, is_forward_ref } from './forward-ref.js';
-import { type Provide } from './provider.js';
-import { type ParameterDecorator } from './type.js';
+import type { Provide } from './provider/provider.js';
+import type { ParameterDecorator } from './type.js';
 
 export interface InjectMetadata {
   type_fn: () => Provide;

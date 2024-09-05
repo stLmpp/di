@@ -1,15 +1,13 @@
-import { type Class } from 'type-fest';
+import type { Class } from 'type-fest';
 
 import { BaseInjector, stringify_target } from './base-injector.js';
-import { Injectable } from './injectable.js';
-import { InjectionToken } from './injection-token.js';
-import {
-  ClassProvider,
-  FactoryProvider,
-  type Provide,
-  ValueProvider,
-} from './provider.js';
-import { DependencyInjectionError } from './dependency-injection-error.js';
+import { Injectable } from '../injectable.js';
+import { InjectionToken } from '../injection-token.js';
+import type { Provide } from '../provider/provider.js';
+import { DependencyInjectionError } from '../dependency-injection-error.js';
+import { ClassProvider } from '../provider/class-provider.js';
+import { FactoryProvider } from '../provider/factory-provider.js';
+import { ValueProvider } from '../provider/value-provider.js';
 
 export class RootInjector extends BaseInjector {
   /**

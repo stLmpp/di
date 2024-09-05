@@ -1,9 +1,7 @@
-import { Injectable } from './injectable.js';
+import { Injectable } from '../injectable.js';
 import { ROOT_INJECTOR } from './root-injector.js';
-import { InjectionToken } from './injection-token.js';
-import { DependencyInjectionError } from './dependency-injection-error.js';
-import { stringify_target } from './base-injector.js';
-import { FactoryProvider, ValueProvider } from './provider.js';
+import { InjectionToken } from '../injection-token.js';
+import { FactoryProvider } from '../provider/factory-provider.js';
 
 @Injectable({ root: true })
 export class ServiceA {}

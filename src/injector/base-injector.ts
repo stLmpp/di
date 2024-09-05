@@ -1,19 +1,15 @@
-import { type Class } from 'type-fest';
+import type { Class } from 'type-fest';
 
-import { coerce_array } from './coerce-array.js';
-import { Inject } from './inject.js';
-import { InjectionToken } from './injection-token.js';
-import {
-  ClassProvider,
-  FactoryProvider,
-  type Provide,
-  type Provider,
-  resolveProvider,
-  ValueProvider,
-} from './provider.js';
-import { ReflectTypeEnum } from './reflect-type.enum.js';
-import { type UnwrapProviders } from './unwrap-providers.type.js';
-import { DependencyInjectionError } from './dependency-injection-error.js';
+import { coerce_array } from '../common/coerce-array.js';
+import { Inject } from '../inject.js';
+import { InjectionToken } from '../injection-token.js';
+import type { Provide, Provider } from '../provider/provider.js';
+import { ReflectTypeEnum } from '../common/reflect-type.enum.js';
+import type { UnwrapProviders } from '../type.js';
+import { ClassProvider } from '../provider/class-provider.js';
+import { FactoryProvider } from '../provider/factory-provider.js';
+import { ValueProvider } from '../provider/value-provider.js';
+import { resolveProvider } from '../provider/resolve-provider.js';
 
 /**
  * @internal

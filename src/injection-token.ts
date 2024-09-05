@@ -1,4 +1,4 @@
-import { FactoryProvider } from './provider.js';
+import { FactoryProvider } from './provider/factory-provider.js';
 
 export class InjectionToken<T> {
   constructor(

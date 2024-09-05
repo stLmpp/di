@@ -26,4 +26,5 @@ export default {
     },
   },
   coverageReporters: ['text', 'lcov', 'lcovonly', 'html'],
+  verbose: true,
 };

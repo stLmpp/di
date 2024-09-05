@@ -1,7 +1,7 @@
-import { type Class } from 'type-fest';
+import type { Class } from 'type-fest';
 
-import { type FactoryProvider } from './provider.js';
-import { type ClassDecorator } from './type.js';
+import type { ClassDecorator } from './type.js';
+import type { FactoryProvider } from './provider/factory-provider.js';
 
 export type InjectableOptions = {
   root?: boolean;

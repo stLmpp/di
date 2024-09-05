@@ -1,9 +1,9 @@
-import { Inject } from './inject.js';
-import { Injectable } from './injectable.js';
+import { Inject } from '../inject.js';
+import { Injectable } from '../injectable.js';
 import { Injector } from './injector.js';
-import { InjectionToken } from './injection-token.js';
-import { ValueProvider } from './provider.js';
-import { DependencyInjectionError } from './dependency-injection-error.js';
+import { InjectionToken } from '../injection-token.js';
+import { DependencyInjectionError } from '../dependency-injection-error.js';
+import { ValueProvider } from '../provider/value-provider.js';
 
 @Injectable()
 class Service1 {}
