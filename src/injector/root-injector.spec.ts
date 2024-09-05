@@ -26,7 +26,7 @@ export class ServiceDImpl extends ServiceDAbstract {
   }
 }
 
-const token = new InjectionToken('multi global');
+const token = new InjectionToken<string>('multi global');
 
 const token2 = new InjectionToken('multi global 2');
 
@@ -149,5 +149,17 @@ describe('RootInjector', () => {
     expect(instance.serviceF).toBeInstanceOf(ServiceF);
     expect(instance.value).toBe('global');
     expect(await ROOT_INJECTOR.resolve(ServiceF)).toBe(instance.serviceF);
+  });
+
+  it('should resolve undefined if optional = true', async () => {
+    const localToken = new InjectionToken('this does not exists');
+    const value = await ROOT_INJECTOR.resolve(localToken, { optional: true });
+    expect(value).toBeUndefined();
+  });
+
+  it('should get undefined if optional = true', () => {
+    const localToken = new InjectionToken('this does not exists');
+    const value = ROOT_INJECTOR.get(localToken, { optional: true });
+    expect(value).toBeUndefined();
   });
 });

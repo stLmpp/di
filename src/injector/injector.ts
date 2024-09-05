@@ -1,12 +1,9 @@
-import type { AbstractClass, Class } from 'type-fest';
-
 import { BaseInjector, stringify_target } from './base-injector.js';
-import type { InjectionToken } from '../injection-token.js';
 import type { Provide } from '../provider/provider.js';
 import { ROOT_INJECTOR } from './root-injector.js';
-import { safe, safeAsync } from '../common/safe.js';
 import { DependencyInjectionError } from '../dependency-injection-error.js';
 import { ValueProvider } from '../provider/value-provider.js';
+import type { ResolveOptions } from '../type.js';
 
 export class Injector extends BaseInjector {
   /**
@@ -26,17 +23,21 @@ export class Injector extends BaseInjector {
    */
   public readonly parent: BaseInjector;
 
-  private async resolve_internal<T>(target: Provide<T>, path: string[]): Promise<void> {
+  private async resolve_internal<T>(
+    target: Provide<T>,
+    options: ResolveOptions,
+    path: string[],
+  ): Promise<void> {
     path ??= [];
     path.push(this.name);
     const providers = this.providers.get(target);
     if (!providers?.length) {
-      await this.parent.resolve(target, path);
+      await this.parent.resolve(target, options, path);
       return;
     }
     const instances = this.instances.get(target);
     if (providers.at(0)?.multi) {
-      await safeAsync(() => this.parent.resolve(target, path));
+      await this.parent.resolve(target, { optional: true }, path);
       if (providers.length === instances?.length) {
         return;
       }
@@ -46,34 +47,44 @@ export class Injector extends BaseInjector {
     await this.resolve_providers(providers);
   }
 
-  async resolve<T>(target: InjectionToken<T>, path?: string[]): Promise<T>;
-  async resolve<T>(target: Class<T>, path?: string[]): Promise<T>;
-  async resolve<T>(target: AbstractClass<T>, path?: string[]): Promise<T>;
-  async resolve<T>(target: Provide<T>, path?: string[]): Promise<T>;
-  async resolve<T>(target: Provide<T>, path?: string[]): Promise<T> {
-    await this.resolve_internal(target, path ?? []);
-    return this.get(target);
+  async resolve<T>(
+    target: Provide<T>,
+    options: { optional: true },
+    path?: string[],
+  ): Promise<T | undefined>;
+  async resolve<T>(
+    target: Provide<T>,
+    options?: ResolveOptions,
+    path?: string[],
+  ): Promise<T>;
+  async resolve<T>(
+    target: Provide<T>,
+    options?: ResolveOptions,
+    path?: string[],
+  ): Promise<T | undefined> {
+    await this.resolve_internal(target, options ?? {}, path ?? []);
+    return this.get(target, options);
   }
 
-  async resolveAll<T>(target: InjectionToken<T>, path?: string[]): Promise<T[]>;
-  async resolveAll<T>(target: Class<T>, path?: string[]): Promise<T[]>;
-  async resolveAll<T>(target: AbstractClass<T>, path?: string[]): Promise<T[]>;
-  async resolveAll<T>(target: Provide<T>, path?: string[]): Promise<T[]>;
-  async resolveAll<T>(target: Provide<T>, path?: string[]): Promise<T[]> {
-    await this.resolve_internal(target, path ?? []);
+  async resolveAll<T>(
+    target: Provide<T>,
+    options?: ResolveOptions,
+    path?: string[],
+  ): Promise<T[]> {
+    await this.resolve_internal(target, options ?? {}, path ?? []);
     return this.getAll(target);
   }
 
-  get<T>(target: InjectionToken<T>): T;
-  get<T>(target: Class<T>): T;
-  get<T>(target: AbstractClass<T>): T;
-  get<T>(target: Provide<T>): T;
-  get<T>(target: Provide<T>): T {
-    let instance = (this.instances.get(target) as T[] | undefined)?.at(0);
+  get<T>(target: Provide<T>, options: { optional: true }): T | undefined;
+  get<T>(target: Provide<T>, options?: ResolveOptions): T;
+  get<T>(target: Provide<T>, options?: ResolveOptions): T | undefined {
+    const instance =
+      (this.instances.get(target) as T[] | undefined)?.at(0) ??
+      this.parent.get(target, { optional: true });
     if (!instance) {
-      [, instance] = safe(() => this.parent.get(target));
-    }
-    if (!instance) {
+      if (options?.optional) {
+        return undefined;
+      }
       throw new DependencyInjectionError(
         `Instance "${stringify_target(
           target,
@@ -85,10 +96,6 @@ export class Injector extends BaseInjector {
     return instance;
   }
 
-  getAll<T>(target: InjectionToken<T>): T[];
-  getAll<T>(target: Class<T>): T[];
-  getAll<T>(target: AbstractClass<T>): T;
-  getAll<T>(target: Provide<T>): T[];
   getAll<T>(target: Provide<T>): T[] {
     const instances = (this.instances.get(target) as T[] | undefined) ?? [];
     const parentInstances = this.parent.getAll(target);

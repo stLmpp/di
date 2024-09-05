@@ -1,8 +1,5 @@
-import type { Class } from 'type-fest';
-
 import { type ForwardRef, is_forward_ref } from './forward-ref.js';
 import type { Provide } from './provider/provider.js';
-import type { ParameterDecorator } from './type.js';
 
 export interface InjectMetadata {
   type_fn: () => Provide;
@@ -17,17 +14,17 @@ interface Inject {
    * @param index
    * @param metadata
    */
-  set_metadata(target: Class<any>, index: number, metadata: InjectMetadata): void;
+  set_metadata(target: any, index: number, metadata: InjectMetadata): void;
 
   /**
    * @internal
    * @param target
    */
-  get_all_for_target(target: Class<any>): (InjectMetadata | undefined)[];
+  get_all_for_target(target: any): (InjectMetadata | undefined)[];
 }
 
 const MapParameter = Map<number, InjectMetadata>;
-const metadata_store = new Map<Class<any>, Map<number, InjectMetadata>>();
+const metadata_store = new Map<any, Map<number, InjectMetadata>>();
 
 const set_metadata: Inject['set_metadata'] = (target, index, metadata) => {
   let class_stored = metadata_store.get(target);

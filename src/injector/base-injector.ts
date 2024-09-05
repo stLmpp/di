@@ -5,11 +5,12 @@ import { Inject } from '../inject.js';
 import { InjectionToken } from '../injection-token.js';
 import type { Provide, Provider } from '../provider/provider.js';
 import { ReflectTypeEnum } from '../common/reflect-type.enum.js';
-import type { UnwrapProviders } from '../type.js';
+import type { ResolveOptions, UnwrapProviders } from '../type.js';
 import { ClassProvider } from '../provider/class-provider.js';
 import { FactoryProvider } from '../provider/factory-provider.js';
 import { ValueProvider } from '../provider/value-provider.js';
 import { resolveProvider } from '../provider/resolve-provider.js';
+import { Optional } from '../optional.js';
 
 /**
  * @internal
@@ -64,8 +65,9 @@ export abstract class BaseInjector {
    */
   protected async resolve_class_provider<T>(provider: ClassProvider<T>): Promise<T> {
     const inject_params = Inject.get_all_for_target(provider.useClass);
-    const reflect_params: Class<any>[] =
+    const reflect_params: any[] =
       Reflect.getMetadata(ReflectTypeEnum.paramTypes, provider.useClass) ?? [];
+    const optionals = Optional.get_all_for_target(provider.useClass) ?? [];
     const params = Array.from(
       { length: Math.max(inject_params.length, reflect_params.length) },
       (_, index) => inject_params[index]?.type_fn() ?? reflect_params[index],
@@ -76,8 +78,10 @@ export abstract class BaseInjector {
       return instance;
     }
     const injections: any[] = [];
-    for (const param of params) {
-      const injection_instance = await this.resolve(param);
+    for (let index = 0; index < params.length; index++) {
+      const param = params[index];
+      const optional = optionals[index]?.optional;
+      const injection_instance = await this.resolve(param, { optional });
       injections.push(injection_instance);
     }
     const instance = new provider.useClass(...injections);
@@ -133,15 +137,36 @@ export abstract class BaseInjector {
 
   async resolveMany<Providers extends Provide[]>(
     targets: [...Providers],
-  ): Promise<UnwrapProviders<Providers>> {
+    options: { optional: true },
+  ): Promise<Partial<UnwrapProviders<Providers>>>;
+  async resolveMany<Providers extends Provide[]>(
+    targets: [...Providers],
+    options?: ResolveOptions,
+  ): Promise<UnwrapProviders<Providers>>;
+  async resolveMany<Providers extends Provide[]>(
+    targets: [...Providers],
+    options?: ResolveOptions,
+  ): Promise<Partial<UnwrapProviders<Providers>>> {
     const services = [] as UnwrapProviders<Providers>;
     for (const target of targets) {
-      services.push(await this.resolve(target));
+      services.push(await this.resolve(target, options));
     }
     return services;
   }
 
-  abstract resolve<T>(target: Provide<T>, path?: string[]): Promise<T>;
-  abstract get<T>(target: Provide<T>): T;
+  abstract resolve<T>(
+    target: Provide<T>,
+    options: { optional: true },
+    path?: string[],
+  ): Promise<T | undefined>;
+  abstract resolve<T>(
+    target: Provide<T>,
+    options?: ResolveOptions,
+    path?: string[],
+  ): Promise<T>;
+
+  abstract get<T>(target: Provide<T>, options: { optional: true }): T | undefined;
+  abstract get<T>(target: Provide<T>, options?: ResolveOptions): T;
+
   abstract getAll<T>(target: Provide<T>): T[];
 }
