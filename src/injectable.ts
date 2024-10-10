@@ -1,11 +1,8 @@
-import { type Class } from 'type-fest';
-
-import { type FactoryProvider } from './provider.js';
-import { type ClassDecorator } from './type.js';
+import type { FactoryProvider } from './provider/factory-provider.js';
 
 export type InjectableOptions = {
   root?: boolean;
-} & Partial<Omit<FactoryProvider<any>, 'provide'>>;
+} & Partial<Omit<FactoryProvider, 'provide'>>;
 
 interface Injectable {
   (options?: InjectableOptions): ClassDecorator;
@@ -14,22 +11,22 @@ interface Injectable {
    * @internal
    * @param target
    */
-  get_metadata(target: Class<any>): InjectableOptions | null;
+  get_metadata(target: any): InjectableOptions | null;
 
   /**
    * @internal
    * @param target
    * @param metadata
    */
-  set_metadata(target: Class<any>, metadata: InjectableOptions): void;
+  set_metadata(target: any, metadata: InjectableOptions): void;
 
   /**
    * @internal
    */
-  get_all(): [Class<any>, InjectableOptions][];
+  get_all(): [any, InjectableOptions][];
 }
 
-const metadata_store = new Map<Class<any>, InjectableOptions>();
+const metadata_store = new Map<any, InjectableOptions>();
 
 const get_metadata: Injectable['get_metadata'] = (target) =>
   metadata_store.get(target) ?? null;
@@ -49,6 +46,6 @@ export const Injectable: Injectable = Object.assign(injectable_internal, {
   get_all,
 });
 
-export function hasInjectableMetadata(target: Class<any>): boolean {
+export function hasInjectableMetadata(target: any): boolean {
   return !!get_metadata(target);
 }

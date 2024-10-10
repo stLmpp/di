@@ -1,14 +1,14 @@
-import { FactoryProvider } from './provider.js';
+import { FactoryProvider } from './provider/factory-provider.js';
 
 export class InjectionToken<T> {
   constructor(
     public readonly description: string,
-    public readonly provider?: Omit<FactoryProvider<T>, 'provide'>
+    public readonly provider?: Omit<FactoryProvider<T>, 'provide'>,
   ) {
     if (provider) {
       InjectionToken.add(
         this,
-        new FactoryProvider(this, provider.useFactory, provider.deps)
+        new FactoryProvider(this, provider.useFactory, provider.deps, provider.multi),
       );
     }
   }
@@ -23,7 +23,7 @@ export class InjectionToken<T> {
    * @param token
    * @param factory
    */
-  static add(token: InjectionToken<any>, factory: FactoryProvider) {
+  private static add(token: InjectionToken<any>, factory: FactoryProvider) {
     this.store.set(token, factory);
   }
 

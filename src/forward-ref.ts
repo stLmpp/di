@@ -1,4 +1,4 @@
-import { type Provide } from './provider.js';
+import type { Provide } from './provider/provider.js';
 
 export class ForwardRef {
   constructor(public readonly providerFn: () => Provide) {}
