@@ -12,8 +12,10 @@ or
 pnpm add @stlmpp/di
 ```
 
-Optionally you can use the `reflect-metadata` library and change your tsconfig.json to include the following settings, so the container can resolve your dependencies without using an explicit @Inject() decorator in the constructors of your classes
+### Optional Setup
+To enable automatic resolution of dependencies using reflect-metadata:
 
+Add the following to your tsconfig.json:
 ```json
 {
   "compilerOptions": {
@@ -23,10 +25,67 @@ Optionally you can use the `reflect-metadata` library and change your tsconfig.j
 }
 ```
 
-Add the import to the `reflect-metadata` library in your main TS file
+Import reflect-metadata in your main TypeScript file:
 
 ```typescript
 import 'reflect-metadata';
+```
+
+## Quick Start
+Here's a quick example to demonstrate the core features of the library:
+
+```typescript
+import { Injectable, Injector, InjectionToken, Inject } from '@stlmpp/di';
+import 'reflect-metadata';
+
+const MY_TOKEN = new InjectionToken<string>('my token');
+const MY_OTHER_TOKEN = new InjectionToken<string>('my other token');
+
+@Injectable()
+class AuthService {
+
+  constructor(
+    @Inject(MY_TOKEN) private readonly myToken: string,
+    @Inject(MY_OTHER_TOKEN) private readonly myOtherToken: string,
+  ) {
+
+  }
+
+  login(user: string, password: string): boolean {
+    console.log(`Logging in user: ${user}`);
+    return true;
+  }
+}
+
+@Injectable()
+class AppController {
+  constructor(private readonly authService: AuthService) {}
+
+  start() {
+    this.authService.login('user', 'password');
+  }
+}
+
+// Create an injector and register providers
+const injector = Injector.create('App');
+// Register one at a time
+injector.register(AppController);
+injector.register(AuthService);
+// Register multiple
+injector.register([
+  { provide: MY_TOKEN, useValue: 'my token value' },
+  // Using the class here for the typescript support in the factory function
+  new FactoryProvider(
+    MY_OTHER_TOKEN,
+    (myToken: string) => `my other token + ${myToken}`,
+    [MY_TOKEN],
+  ),
+]);
+
+// Resolve and use the AppController
+const appController = await injector.resolve(AppController);
+appController.start();
+
 ```
 
 ## API
@@ -85,3 +144,5 @@ injector.register([
 ### Injector class
 
 An container used to store, register and resolve providers
+
+WIP
